@@ -1,13 +1,12 @@
-package carstore.carstorebe;
+package carstore;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CarStoreBeApplication {
+public class SpringbootStarter {
 
     public static void main(String[] args) {
-        SpringApplication.run(CarStoreBeApplication.class, args);
+        SpringApplication.run(SpringbootStarter.class, args);
     }
-
 }

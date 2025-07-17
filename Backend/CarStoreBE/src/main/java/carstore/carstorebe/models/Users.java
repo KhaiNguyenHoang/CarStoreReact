@@ -31,8 +31,14 @@ public class Users implements Serializable {
     @Column(name = "username", nullable = false)
     private String username;
 
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+    @Column(name = "password")
+    private String password;
+
+    @Column(name = "oauth_id")
+    private String oauthId;
+
+    @Column(name = "provider")
+    private String provider;
 
     @Column(name = "first_name")
     private String firstName;

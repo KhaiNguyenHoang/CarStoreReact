@@ -1,54 +1,67 @@
 package carstore.carstorebe.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
 
-    private final JwtEncoder encoder;
+    @Value("${application.security.jwt.secret-key}")
+    private String jwtKey;
 
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
-    public JwtService(JwtEncoder encoder) {
-        this.encoder = encoder;
+    private SecretKeySpec secretKeySpec;
+
+    @PostConstruct
+    public void init() {
+        this.secretKeySpec = new SecretKeySpec(jwtKey.getBytes(), "HmacSHA256");
     }
 
-    public String generateToken(Authentication authentication) {
-        Instant now = Instant.now();
-        String scope = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
+    public String generateToken(Authentication authentication) throws JOSEException {
+        String authorities = authentication.getAuthorities().stream()
+                .map(Object::toString)
                 .collect(Collectors.joining(" "));
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("self")
-                .issuedAt(now)
-                .expiresAt(now.plus(jwtExpiration, ChronoUnit.MILLIS))
+
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(authentication.getName())
-                .claim("scope", scope)
+                .claim("scope", authorities)
+                .issueTime(new Date())
+                .expirationTime(new Date(System.currentTimeMillis() + jwtExpiration))
                 .build();
-        return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+
+        SignedJWT signedJWT = new SignedJWT(
+                new JWSHeader(JWSAlgorithm.HS256),
+                claimsSet);
+
+        signedJWT.sign(new MACSigner(secretKeySpec));
+        return signedJWT.serialize();
     }
 
-    public String generateToken(String username) {
-        Instant now = Instant.now();
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("self")
-                .issuedAt(now)
-                .expiresAt(now.plus(jwtExpiration, ChronoUnit.MILLIS))
+    public String generateToken(String username) throws JOSEException {
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(username)
                 .claim("scope", "ROLE_USER")
+                .issueTime(new Date())
+                .expirationTime(new Date(System.currentTimeMillis() + jwtExpiration))
                 .build();
-        return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+
+        SignedJWT signedJWT = new SignedJWT(
+                new JWSHeader(JWSAlgorithm.HS256),
+                claimsSet);
+
+        signedJWT.sign(new MACSigner(secretKeySpec));
+        return signedJWT.serialize();
     }
 }

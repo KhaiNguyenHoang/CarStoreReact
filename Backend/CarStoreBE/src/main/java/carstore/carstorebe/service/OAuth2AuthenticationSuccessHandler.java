@@ -1,5 +1,6 @@
 package carstore.carstorebe.service;
 
+import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,7 +29,12 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String email = oauth2User.getAttribute("email");
 
         // Generate JWT token
-        String token = jwtService.generateToken(email);
+        String token = null;
+        try {
+            token = jwtService.generateToken(email);
+        } catch (JOSEException e) {
+            throw new RuntimeException(e);
+        }
 
         // Redirect to a frontend URL with the token
         response.sendRedirect("http://localhost:5173/oauth2/redirect?token=" + token);

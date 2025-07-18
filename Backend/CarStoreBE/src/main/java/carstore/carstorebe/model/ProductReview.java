@@ -23,6 +23,7 @@ import java.time.Instant;
 })
 public class ProductReview {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ReviewId", nullable = false)
     private Integer id;
 

@@ -21,6 +21,7 @@ import java.time.Instant;
 })
 public class ProductImage {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ImageId", nullable = false)
     private Integer id;
 

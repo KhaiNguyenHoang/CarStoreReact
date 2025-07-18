@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import carstore.carstorebe.dto.LoginResponse;
 import carstore.carstorebe.model.RefreshToken;
 import carstore.carstorebe.dto.RefreshTokenRequest;
+import com.nimbusds.jose.JOSEException;
 
 import java.util.Date;
 import java.time.Instant;
@@ -34,25 +35,24 @@ public class AuthService {
         this.refreshTokenService = refreshTokenService;
     }
 
-    public LoginResponse login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) throws JOSEException {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         User user = UserRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
         String jwt = jwtService.generateToken(authentication);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
         return new LoginResponse(jwt, refreshToken.getToken());
     }
 
-    public LoginResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
-        return refreshTokenService.findByToken(refreshTokenRequest.getRefreshToken())
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getId)
-                .map(userId -> {
-                    User user = UserRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-                    String token = jwtService.generateToken(user.getEmail());
-                    return new LoginResponse(token, refreshTokenRequest.getRefreshToken());
-                })
+    public LoginResponse refreshToken(RefreshTokenRequest refreshTokenRequest) throws JOSEException {
+        RefreshToken refreshToken = refreshTokenService.findByToken(refreshTokenRequest.getRefreshToken())
                 .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+
+        refreshTokenService.verifyExpiration(refreshToken);
+
+        User user = refreshToken.getUser();
+        String token = jwtService.generateToken(user.getEmail());
+        return new LoginResponse(token, refreshTokenRequest.getRefreshToken());
     }
 
     public User register(RegisterRequest registerRequest) {
@@ -66,7 +66,8 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(registerRequest.getPassword()));
         user.setCreatedAt(Date.from(Instant.now()).toInstant());
         user.setUpdatedAt(Date.from(Instant.now()).toInstant());
-
-        return UserRepository.save(user);
+        user.setStatus("Active");
+        User savedUser = UserRepository.save(user);
+        return savedUser;
     }
 }

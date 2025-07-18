@@ -30,6 +30,7 @@ import java.time.Instant;
 public class Product {
     @Id
     @Column(name = "ProductId", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NotNull

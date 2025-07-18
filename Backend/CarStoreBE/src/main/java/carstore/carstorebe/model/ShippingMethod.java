@@ -1,9 +1,6 @@
 package carstore.carstorebe.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -20,6 +17,7 @@ import java.time.Instant;
 @Table(name = "ShippingMethods")
 public class ShippingMethod {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ShippingMethodId", nullable = false)
     private Integer id;
 

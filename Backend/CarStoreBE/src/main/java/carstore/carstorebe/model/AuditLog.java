@@ -21,6 +21,7 @@ import java.time.Instant;
 })
 public class AuditLog {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "LogId", nullable = false)
     private Integer id;
 

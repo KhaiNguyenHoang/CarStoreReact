@@ -23,6 +23,7 @@ import java.time.Instant;
 })
 public class Voucher {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "VoucherId", nullable = false)
     private Integer id;
 

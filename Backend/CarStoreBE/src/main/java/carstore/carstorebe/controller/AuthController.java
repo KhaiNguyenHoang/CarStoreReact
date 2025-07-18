@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import carstore.carstorebe.dto.LoginResponse;
 import carstore.carstorebe.dto.RefreshTokenRequest;
+import com.nimbusds.jose.JOSEException;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,12 +25,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) throws JOSEException {
         return ResponseEntity.ok(authService.login(loginRequest));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+    public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) throws JOSEException {
         return ResponseEntity.ok(authService.refreshToken(refreshTokenRequest));
     }
 

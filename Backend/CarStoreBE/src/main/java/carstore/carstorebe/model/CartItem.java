@@ -19,6 +19,7 @@ import java.time.Instant;
 })
 public class CartItem {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CartItemId", nullable = false)
     private Integer id;
 

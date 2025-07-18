@@ -22,6 +22,7 @@ import java.time.Instant;
 })
 public class InventoryTransaction {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TransactionId", nullable = false)
     private Integer id;
 

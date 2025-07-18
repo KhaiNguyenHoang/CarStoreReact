@@ -33,10 +33,10 @@ public class RefreshTokenService {
         return refreshTokensRepository.findByToken(token);
     }
 
-    public RefreshToken createRefreshToken(Integer userId) {
+    public RefreshToken createRefreshToken(User user) {
         RefreshToken refreshToken = new RefreshToken();
 
-        refreshToken.setId(userId);
+        refreshToken.setUser(user);
         refreshToken.setExpiryDate(new Date(System.currentTimeMillis() + refreshTokenDurationMs).toInstant());
         refreshToken.setToken(UUID.randomUUID().toString());
         refreshToken.setCreatedAt(new Date().toInstant());
@@ -45,13 +45,11 @@ public class RefreshTokenService {
         return refreshTokensRepository.save(refreshToken);
     }
 
-    public RefreshToken verifyExpiration(RefreshToken token) {
+    public void verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().isBefore(new Date().toInstant())) {
             refreshTokensRepository.delete(token);
             throw new TokenRefreshException(token.getToken(), "Refresh token was expired. Please make a new signin request");
         }
-
-        return token;
     }
 
 }

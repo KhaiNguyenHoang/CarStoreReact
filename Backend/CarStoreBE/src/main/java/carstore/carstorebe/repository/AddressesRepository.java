@@ -1,9 +1,9 @@
 package carstore.carstorebe.repository;
 
-import carstore.carstorebe.model.Addresses;
+import carstore.carstorebe.model.Address;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface AddressesRepository extends JpaRepository<Addresses, Integer>, JpaSpecificationExecutor<Addresses> {
+public interface AddressesRepository extends JpaRepository<Address, Integer>, JpaSpecificationExecutor<Address> {
 
 }

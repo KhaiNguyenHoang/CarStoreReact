@@ -1,9 +1,9 @@
 package carstore.carstorebe.repository;
 
-import carstore.carstorebe.model.OrderDetails;
+import carstore.carstorebe.model.OrderDetail;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface OrderDetailsRepository extends JpaRepository<OrderDetails, Integer>, JpaSpecificationExecutor<OrderDetails> {
+public interface OrderDetailsRepository extends JpaRepository<OrderDetail, Integer>, JpaSpecificationExecutor<OrderDetail> {
 
 }

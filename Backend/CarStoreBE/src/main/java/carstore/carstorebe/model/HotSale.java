@@ -15,34 +15,41 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "Cart", indexes = {
-        @Index(name = "IX_Cart_UserId", columnList = "UserId"),
-        @Index(name = "IX_Cart_SessionId", columnList = "SessionId")
-})
-public class Cart {
+@Table(name = "HotSales")
+public class HotSale {
     @Id
-    @Column(name = "CartId", nullable = false)
+    @Column(name = "HotSaleId", nullable = false)
     private Integer id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "UserId", nullable = false)
-    private User user;
+    @JoinColumn(name = "ProductId", nullable = false)
+    private Product product;
 
-    @Size(max = 255)
+    @NotNull
+    @Column(name = "StartDate", nullable = false)
+    private Instant startDate;
+
+    @NotNull
+    @Column(name = "EndDate", nullable = false)
+    private Instant endDate;
+
+    @NotNull
+    @ColumnDefault("1")
+    @Column(name = "Priority", nullable = false)
+    private Integer priority;
+
+    @Size(max = 50)
+    @NotNull
     @Nationalized
-    @Column(name = "SessionId")
-    private String sessionId;
+    @ColumnDefault("'Active'")
+    @Column(name = "Status", nullable = false, length = 50)
+    private String status;
 
     @NotNull
     @ColumnDefault("getdate()")
     @Column(name = "CreatedAt", nullable = false)
     private Instant createdAt;
-
-    @NotNull
-    @ColumnDefault("getdate()")
-    @Column(name = "UpdatedAt", nullable = false)
-    private Instant updatedAt;
 
 }

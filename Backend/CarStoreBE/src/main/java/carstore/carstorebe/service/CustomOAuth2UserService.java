@@ -1,6 +1,6 @@
 package carstore.carstorebe.service;
 
-import carstore.carstorebe.model.Users;
+import carstore.carstorebe.model.User;
 import carstore.carstorebe.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -25,9 +25,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oauth2User = super.loadUser(userRequest);
         String email = oauth2User.getAttribute("email");
 
-        Optional<Users> userOptional = usersRepository.findByEmail(email);
+        Optional<User> userOptional = usersRepository.findByEmail(email);
         if (userOptional.isEmpty()) {
-            Users user = new Users();
+            User user = new User();
             user.setEmail(email);
             user.setFullName(oauth2User.getAttribute("name"));
             // Set other necessary fields from oauth2User

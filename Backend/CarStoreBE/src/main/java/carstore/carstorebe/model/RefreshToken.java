@@ -15,13 +15,10 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "Cart", indexes = {
-        @Index(name = "IX_Cart_UserId", columnList = "UserId"),
-        @Index(name = "IX_Cart_SessionId", columnList = "SessionId")
-})
-public class Cart {
+@Table(name = "RefreshTokens")
+public class RefreshToken {
     @Id
-    @Column(name = "CartId", nullable = false)
+    @Column(name = "TokenId", nullable = false)
     private Integer id;
 
     @NotNull
@@ -30,10 +27,15 @@ public class Cart {
     @JoinColumn(name = "UserId", nullable = false)
     private User user;
 
-    @Size(max = 255)
+    @Size(max = 512)
+    @NotNull
     @Nationalized
-    @Column(name = "SessionId")
-    private String sessionId;
+    @Column(name = "Token", nullable = false, length = 512)
+    private String token;
+
+    @NotNull
+    @Column(name = "ExpiryDate", nullable = false)
+    private Instant expiryDate;
 
     @NotNull
     @ColumnDefault("getdate()")
@@ -41,8 +43,8 @@ public class Cart {
     private Instant createdAt;
 
     @NotNull
-    @ColumnDefault("getdate()")
-    @Column(name = "UpdatedAt", nullable = false)
-    private Instant updatedAt;
+    @ColumnDefault("0")
+    @Column(name = "IsRevoked", nullable = false)
+    private Boolean isRevoked = false;
 
 }

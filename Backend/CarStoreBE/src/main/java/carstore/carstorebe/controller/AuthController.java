@@ -10,23 +10,32 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import carstore.carstorebe.dto.LoginResponse;
+import carstore.carstorebe.dto.RefreshTokenRequest;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
-        String token = authService.login(loginRequest);
-        return ResponseEntity.ok(new AuthResponse(token));
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(authService.login(loginRequest));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return ResponseEntity.ok(authService.refreshToken(refreshTokenRequest));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<Void> register(@RequestBody RegisterRequest registerRequest) {
         authService.register(registerRequest);
-        return ResponseEntity.ok("User registered successfully!");
+        return ResponseEntity.ok().build();
     }
 }

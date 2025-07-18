@@ -1,56 +1,72 @@
 package carstore.carstorebe.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
-import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Nationalized;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.time.Instant;
 
-@Entity
 @Getter
 @Setter
-@ToString
-@SuperBuilder
-@NoArgsConstructor
-@Table(name = "dbo.AuditLog")
-public class AuditLog implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
+@Entity
+@Table(name = "AuditLog", indexes = {
+        @Index(name = "IX_AuditLog_TableName", columnList = "TableName"),
+        @Index(name = "IX_AuditLog_RecordId", columnList = "RecordId"),
+        @Index(name = "IX_AuditLog_UserId", columnList = "UserId"),
+        @Index(name = "IX_AuditLog_CreatedAt", columnList = "CreatedAt")
+})
+public class AuditLog {
     @Id
     @Column(name = "LogId", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer logId;
+    private Integer id;
 
-    @Column(name = "TableName", nullable = false)
+    @Size(max = 100)
+    @NotNull
+    @Nationalized
+    @Column(name = "TableName", nullable = false, length = 100)
     private String tableName;
 
+    @NotNull
     @Column(name = "RecordId", nullable = false)
     private Integer recordId;
 
-    @Column(name = "Action", nullable = false)
+    @Size(max = 50)
+    @NotNull
+    @Nationalized
+    @Column(name = "\"Action\"", nullable = false, length = 50)
     private String action;
 
+    @Nationalized
+    @Lob
     @Column(name = "OldValues")
     private String oldValues;
 
+    @Nationalized
+    @Lob
     @Column(name = "NewValues")
     private String newValues;
 
-    @Column(name = "UserId")
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "UserId")
+    private User user;
 
-    @Column(name = "UserIP")
+    @Size(max = 45)
+    @Nationalized
+    @Column(name = "UserIP", length = 45)
     private String userIP;
 
-    @Column(name = "UserAgent")
+    @Size(max = 500)
+    @Nationalized
+    @Column(name = "UserAgent", length = 500)
     private String userAgent;
 
+    @NotNull
+    @ColumnDefault("getdate()")
     @Column(name = "CreatedAt", nullable = false)
-    private Date createdAt;
+    private Instant createdAt;
 
 }

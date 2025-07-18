@@ -3,46 +3,70 @@ package carstore.carstorebe.service;
 import carstore.carstorebe.dto.LoginRequest;
 import carstore.carstorebe.dto.RegisterRequest;
 import carstore.carstorebe.exception.EmailAlreadyExistsException;
-import carstore.carstorebe.model.Users;
+import carstore.carstorebe.model.User;
 import carstore.carstorebe.repository.UsersRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import carstore.carstorebe.dto.LoginResponse;
+import carstore.carstorebe.model.RefreshToken;
+import carstore.carstorebe.dto.RefreshTokenRequest;
+
+import java.util.Date;
+import java.time.Instant;
 
 @Service
 public class AuthService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
+    private final UsersRepository UserRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
-    @Autowired
-    private UsersRepository usersRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtService jwtService;
-
-    public String login(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-        return jwtService.generateToken(authentication);
+    public AuthService(AuthenticationManager authenticationManager, UsersRepository UserRepository, PasswordEncoder passwordEncoder, JwtService jwtService, RefreshTokenService refreshTokenService) {
+        this.authenticationManager = authenticationManager;
+        this.UserRepository = UserRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
-    public Users register(RegisterRequest registerRequest) {
-        if (usersRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+    public LoginResponse login(LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        User user = UserRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
+        String jwt = jwtService.generateToken(authentication);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+        return new LoginResponse(jwt, refreshToken.getToken());
+    }
+
+    public LoginResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        return refreshTokenService.findByToken(refreshTokenRequest.getRefreshToken())
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getId)
+                .map(userId -> {
+                    User user = UserRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+                    String token = jwtService.generateToken(user.getEmail());
+                    return new LoginResponse(token, refreshTokenRequest.getRefreshToken());
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+    }
+
+    public User register(RegisterRequest registerRequest) {
+        if (UserRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email Address already in use!");
         }
 
-        Users user = new Users();
+        User user = new User();
         user.setFullName(registerRequest.getFullName());
         user.setEmail(registerRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setPasswordHash(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setCreatedAt(Date.from(Instant.now()).toInstant());
+        user.setUpdatedAt(Date.from(Instant.now()).toInstant());
 
-        return usersRepository.save(user);
+        return UserRepository.save(user);
     }
 }

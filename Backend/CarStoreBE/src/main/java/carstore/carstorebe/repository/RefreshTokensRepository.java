@@ -1,9 +1,10 @@
 package carstore.carstorebe.repository;
 
-import carstore.carstorebe.model.RefreshTokens;
+import carstore.carstorebe.model.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface RefreshTokensRepository extends JpaRepository<RefreshTokens, Integer>, JpaSpecificationExecutor<RefreshTokens> {
+import java.util.Optional;
 
+public interface RefreshTokensRepository extends JpaRepository<RefreshToken, Integer> {
+    Optional<RefreshToken> findByToken(String token);
 }

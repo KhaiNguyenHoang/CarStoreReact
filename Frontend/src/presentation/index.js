@@ -1,0 +1,9 @@
+export { default as HomePage } from './HomePage';
+export { default as LoginForm } from './components/LoginForm';
+export { default as RegisterForm } from './components/RegisterForm';
+export { default as Header } from './components/Header';
+export { default as Footer } from './components/Footer';
+export { default as HeroSection } from './components/HeroSection';
+export { default as FeaturedProducts } from './components/FeaturedProducts';
+export { default as CategoriesSection } from './components/CategoriesSection';
+export { default as WhyChooseUs } from './components/WhyChooseUs';

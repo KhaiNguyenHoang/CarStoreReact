@@ -12,9 +12,12 @@ const Header = () => {
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/">Home</Nav.Link>
             <Nav.Link as={Link} to="/products">Products</Nav.Link>
-            <Nav.Link as={Link} to="/cart">Cart</Nav.Link>
+            <Nav.Link as={Link} to="/cart">
+              Cart <Badge pill bg="light" text="dark">{totalQuantity}</Badge>
+            </Nav.Link>
           </Nav>
           <Nav>
+            <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
             <Button variant="outline-light" as={Link} to="/login" className="me-2">Login</Button>
             <Button variant="light" as={Link} to="/register">Register</Button>
           </Nav>

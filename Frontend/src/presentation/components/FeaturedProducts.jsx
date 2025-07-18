@@ -69,7 +69,7 @@ const FeaturedProducts = () => {
                     <Button variant="primary" size="sm" as={Link} to={`/products/${product.id}`}>
                       View Details
                     </Button>
-                    <Button variant="outline-secondary" size="sm">
+                    <Button variant="outline-secondary" size="sm" onClick={() => dispatch(addToCart({ id: product.id, name: product.name, price: parseFloat(product.price.replace(',', '')), image: product.image }))}>
                       Add to Cart
                     </Button>
                   </div>
